@@ -439,36 +439,36 @@ namespace MediaBrowser.XbmcMetadata.Savers
 
             var options = config.GetNfoConfiguration();
 
-            if (item is MusicArtist)
-            {
-                writer.WriteElementString("biography", overview);
-            }
-            else if (item is MusicAlbum)
-            {
-                writer.WriteElementString("review", overview);
-            }
-            else
-            {
-                writer.WriteElementString("plot", overview);
-            }
+            //if (item is MusicArtist)
+            //{
+            //    writer.WriteElementString("biography", overview);
+            //}
+            //else if (item is MusicAlbum)
+            //{
+            //    writer.WriteElementString("review", overview);
+            //}
+            //else
+            //{
+            //    writer.WriteElementString("plot", overview);
+            //}
 
-            if (item is Video)
-            {
-                var outline = (item.Tagline ?? string.Empty)
-                    .StripHtml()
-                    .Replace("&quot;", "'");
+            //if (item is Video)
+            //{
+            //    var outline = (item.Tagline ?? string.Empty)
+            //        .StripHtml()
+            //        .Replace("&quot;", "'");
 
-                writer.WriteElementString("outline", outline);
-            }
-            else
-            {
-                writer.WriteElementString("outline", overview);
-            }
+            //    writer.WriteElementString("outline", outline);
+            //}
+            //else
+            //{
+            //    writer.WriteElementString("outline", overview);
+            //}
 
-            if (!string.IsNullOrWhiteSpace(item.CustomRating))
-            {
-                writer.WriteElementString("customrating", item.CustomRating);
-            }
+            //if (!string.IsNullOrWhiteSpace(item.CustomRating))
+            //{
+            //    writer.WriteElementString("customrating", item.CustomRating);
+            //}
 
             writer.WriteElementString("lockdata", item.IsLocked.ToString(CultureInfo.InvariantCulture).ToLowerInvariant());
 
@@ -477,52 +477,59 @@ namespace MediaBrowser.XbmcMetadata.Savers
                 writer.WriteElementString("lockedfields", string.Join("|", item.LockedFields));
             }
 
-            writer.WriteElementString("dateadded", item.DateCreated.ToLocalTime().ToString(DateAddedFormat));
+            if (item.PremiereDate.HasValue)
+                writer.WriteElementString("dateadded", item.PremiereDate.Value.ToString(DateAddedFormat));
+            else
+                writer.WriteElementString("dateadded", item.DateCreated.ToLocalTime().ToString(DateAddedFormat));
 
-            writer.WriteElementString("title", item.Name ?? string.Empty);
+            //writer.WriteElementString("title", item.Name ?? string.Empty);
 
             if (!string.IsNullOrWhiteSpace(item.OriginalTitle))
             {
-                writer.WriteElementString("originaltitle", item.OriginalTitle);
+                {
+                    writer.WriteElementString("originaltitle", item.OriginalTitle);
+                    //writer.WriteElementString("originaltitle", item.OriginalTitle);
+                    writer.WriteElementString("title", item.OriginalTitle);
+                }
             }
 
-            var people = libraryManager.GetPeople(item);
+            //var people = libraryManager.GetPeople(item);
 
-            var directors = people
-                .Where(i => IsPersonType(i, PersonType.Director))
-                .Select(i => i.Name)
-                .ToList();
+            //var directors = people
+            //    .Where(i => IsPersonType(i, PersonType.Director))
+            //    .Select(i => i.Name)
+            //    .ToList();
 
-            foreach (var person in directors)
-            {
-                writer.WriteElementString("director", person);
-            }
+            //foreach (var person in directors)
+            //{
+            //    writer.WriteElementString("director", person);
+            //}
 
-            var writers = people
-                .Where(i => IsPersonType(i, PersonType.Writer))
-                .Select(i => i.Name)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            //var writers = people
+            //    .Where(i => IsPersonType(i, PersonType.Writer))
+            //    .Select(i => i.Name)
+            //    .Distinct(StringComparer.OrdinalIgnoreCase)
+            //    .ToList();
 
-            foreach (var person in writers)
-            {
-                writer.WriteElementString("writer", person);
-            }
+            //foreach (var person in writers)
+            //{
+            //    writer.WriteElementString("writer", person);
+            //}
 
-            foreach (var person in writers)
-            {
-                writer.WriteElementString("credits", person);
-            }
+            //foreach (var person in writers)
+            //{
+            //    writer.WriteElementString("credits", person);
+            //}
 
-            foreach (var trailer in item.RemoteTrailers)
-            {
-                writer.WriteElementString("trailer", GetOutputTrailerUrl(trailer.Url));
-            }
+            //foreach (var trailer in item.RemoteTrailers)
+            //{
+            //    writer.WriteElementString("trailer", GetOutputTrailerUrl(trailer.Url));
+            //}
 
-            if (item.CommunityRating.HasValue)
-            {
-                writer.WriteElementString("rating", item.CommunityRating.Value.ToString(CultureInfo.InvariantCulture));
-            }
+            //if (item.CommunityRating.HasValue)
+            //{
+            //    writer.WriteElementString("rating", item.CommunityRating.Value.ToString(CultureInfo.InvariantCulture));
+            //}
 
             if (item.ProductionYear.HasValue)
             {
@@ -535,10 +542,10 @@ namespace MediaBrowser.XbmcMetadata.Savers
                 writer.WriteElementString("sorttitle", forcedSortName);
             }
 
-            if (!string.IsNullOrEmpty(item.OfficialRating))
-            {
-                writer.WriteElementString("mpaa", item.OfficialRating);
-            }
+            //if (!string.IsNullOrEmpty(item.OfficialRating))
+            //{
+            //    writer.WriteElementString("mpaa", item.OfficialRating);
+            //}
 
             if (item is IHasAspectRatio hasAspectRatio
                 && !string.IsNullOrEmpty(hasAspectRatio.AspectRatio))
@@ -587,62 +594,62 @@ namespace MediaBrowser.XbmcMetadata.Savers
                 writtenProviderIds.Add(MetadataProviders.Tmdb.ToString());
             }
 
-            if (!string.IsNullOrEmpty(item.PreferredMetadataLanguage))
-            {
-                writer.WriteElementString("language", item.PreferredMetadataLanguage);
-            }
-            if (!string.IsNullOrEmpty(item.PreferredMetadataCountryCode))
-            {
-                writer.WriteElementString("countrycode", item.PreferredMetadataCountryCode);
-            }
+            //if (!string.IsNullOrEmpty(item.PreferredMetadataLanguage))
+            //{
+            //    writer.WriteElementString("language", item.PreferredMetadataLanguage);
+            //}
+            //if (!string.IsNullOrEmpty(item.PreferredMetadataCountryCode))
+            //{
+            //    writer.WriteElementString("countrycode", item.PreferredMetadataCountryCode);
+            //}
 
-            if (item.PremiereDate.HasValue && !(item is Episode))
-            {
-                var formatString = options.ReleaseDateFormat;
+            //if (item.PremiereDate.HasValue && !(item is Episode))
+            //{
+            //    var formatString = options.ReleaseDateFormat;
 
-                if (item is MusicArtist)
-                {
-                    writer.WriteElementString(
-                        "formed",
-                        item.PremiereDate.Value.ToLocalTime().ToString(formatString));
-                }
-                else
-                {
-                    writer.WriteElementString(
-                        "premiered",
-                        item.PremiereDate.Value.ToLocalTime().ToString(formatString));
-                    writer.WriteElementString(
-                        "releasedate",
-                        item.PremiereDate.Value.ToLocalTime().ToString(formatString));
-                }
-            }
+            //    if (item is MusicArtist)
+            //    {
+            //        writer.WriteElementString(
+            //            "formed",
+            //            item.PremiereDate.Value.ToLocalTime().ToString(formatString));
+            //    }
+            //    else
+            //    {
+            //        writer.WriteElementString(
+            //            "premiered",
+            //            item.PremiereDate.Value.ToLocalTime().ToString(formatString));
+            //        writer.WriteElementString(
+            //            "releasedate",
+            //            item.PremiereDate.Value.ToLocalTime().ToString(formatString));
+            //    }
+            //}
 
-            if (item.EndDate.HasValue)
-            {
-                if (!(item is Episode))
-                {
-                    var formatString = options.ReleaseDateFormat;
+            //if (item.EndDate.HasValue)
+            //{
+            //    if (!(item is Episode))
+            //    {
+            //        var formatString = options.ReleaseDateFormat;
 
-                    writer.WriteElementString(
-                        "enddate",
-                        item.EndDate.Value.ToLocalTime().ToString(formatString));
-                }
-            }
+            //        writer.WriteElementString(
+            //            "enddate",
+            //            item.EndDate.Value.ToLocalTime().ToString(formatString));
+            //    }
+            //}
 
-            if (item.CriticRating.HasValue)
-            {
-                writer.WriteElementString(
-                    "criticrating",
-                    item.CriticRating.Value.ToString(CultureInfo.InvariantCulture));
-            }
+            //if (item.CriticRating.HasValue)
+            //{
+            //    writer.WriteElementString(
+            //        "criticrating",
+            //        item.CriticRating.Value.ToString(CultureInfo.InvariantCulture));
+            //}
 
-            if (item is IHasDisplayOrder hasDisplayOrder)
-            {
-                if (!string.IsNullOrEmpty(hasDisplayOrder.DisplayOrder))
-                {
-                    writer.WriteElementString("displayorder", hasDisplayOrder.DisplayOrder);
-                }
-            }
+            //if (item is IHasDisplayOrder hasDisplayOrder)
+            //{
+            //    if (!string.IsNullOrEmpty(hasDisplayOrder.DisplayOrder))
+            //    {
+            //        writer.WriteElementString("displayorder", hasDisplayOrder.DisplayOrder);
+            //    }
+            //}
 
             // Use original runtime here, actual file runtime later in MediaInfo
             var runTimeTicks = item.RunTimeTicks;
@@ -656,24 +663,34 @@ namespace MediaBrowser.XbmcMetadata.Savers
                     Convert.ToInt64(timespan.TotalMinutes).ToString(CultureInfo.InvariantCulture));
             }
 
-            if (!string.IsNullOrWhiteSpace(item.Tagline))
-            {
-                writer.WriteElementString("tagline", item.Tagline);
-            }
+            //if (!string.IsNullOrWhiteSpace(item.Tagline))
+            //{
+            //    writer.WriteElementString("tagline", item.Tagline);
+            //}
 
-            foreach (var country in item.ProductionLocations)
-            {
-                writer.WriteElementString("country", country);
-            }
+            //foreach (var country in item.ProductionLocations)
+            //{
+            //    writer.WriteElementString("country", country);
+            //}
 
-            foreach (var genre in item.Genres)
-            {
-                writer.WriteElementString("genre", genre);
-            }
+            //foreach (var genre in item.Genres)
+            //{
+            //    writer.WriteElementString("genre", genre);
+            //}
 
-            foreach (var studio in item.Studios)
+            //foreach (var studio in item.Studios)
+            //{
+            //    writer.WriteElementString("studio", studio);
+            //}
+
+            if (item is Movie || item is Series)
             {
-                writer.WriteElementString("studio", studio);
+                {
+                    writer.WriteElementString("studio", studio);
+                    var tag = item.Path.Replace("/mnt/disks/videos/movies/", "").Replace("/mnt/disks/videos/shows/", "");
+
+                    item.Tags = new string[] { tag.Split('/')[0] };
+                }
             }
 
             foreach (var tag in item.Tags)
@@ -779,19 +796,19 @@ namespace MediaBrowser.XbmcMetadata.Savers
                 }
             }
 
-            if (options.SaveImagePathsInNfo)
-            {
-                AddImages(item, writer, libraryManager, config);
-            }
+            //if (options.SaveImagePathsInNfo)
+            //{
+            //    AddImages(item, writer, libraryManager, config);
+            //}
 
-            AddUserData(item, writer, userManager, userDataRepo, options);
+            //AddUserData(item, writer, userManager, userDataRepo, options);
 
-            AddActors(people, writer, libraryManager, fileSystem, config, options.SaveImagePathsInNfo);
+            //AddActors(people, writer, libraryManager, fileSystem, config, options.SaveImagePathsInNfo);
 
-            if (item is BoxSet folder)
-            {
-                AddCollectionItems(folder, writer);
-            }
+            //if (item is BoxSet folder)
+            //{
+            //    AddCollectionItems(folder, writer);
+            //}
         }
 
         private void AddCollectionItems(Folder item, XmlWriter writer)

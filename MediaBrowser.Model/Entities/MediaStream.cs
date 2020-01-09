@@ -31,6 +31,7 @@ namespace MediaBrowser.Model.Entities
         /// </summary>
         /// <value>The language.</value>
         public string Language { get; set; }
+        public string DisplayLanguage { get; set; }
 
         public string ColorTransfer { get; set; }
         public string ColorPrimaries { get; set; }
@@ -84,7 +85,11 @@ namespace MediaBrowser.Model.Entities
 
                     var attributes = new List<string>();
 
-                    if (!string.IsNullOrEmpty(Language))
+                    if (!string.IsNullOrEmpty(DisplayLanguage))
+                    {
+                        attributes.Add(StringHelper.FirstToUpper(DisplayLanguage));
+                    }
+                    else if (!string.IsNullOrEmpty(Language))
                     {
                         attributes.Add(StringHelper.FirstToUpper(Language));
                     }
@@ -137,7 +142,11 @@ namespace MediaBrowser.Model.Entities
 
                     var attributes = new List<string>();
 
-                    if (!string.IsNullOrEmpty(Language))
+                    if (!string.IsNullOrEmpty(DisplayLanguage))
+                    {
+                        attributes.Add(StringHelper.FirstToUpper(DisplayLanguage));
+                    }
+                    else if (!string.IsNullOrEmpty(Language))
                     {
                         attributes.Add(StringHelper.FirstToUpper(Language));
                     }

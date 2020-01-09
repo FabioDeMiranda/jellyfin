@@ -34,6 +34,10 @@ namespace MediaBrowser.Controller.Channels
         public long? RunTimeTicks { get; set; }
 
         public string ImageUrl { get; set; }
+        public string ThumbImageUrl { get; set; }
+        public string LogoImageUrl { get; set; }
+        public string BackdropImageUrl { get; set; }
+
         public string OriginalTitle { get; set; }
 
         public ChannelMediaType MediaType { get; set; }

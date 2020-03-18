@@ -685,7 +685,7 @@ namespace MediaBrowser.XbmcMetadata.Savers
             if (item is Movie || item is Series)
             {
                 {
-                    var tag = item.Path.Replace("/mnt/disks/videos/movies/", "").Replace("/mnt/disks/videos/shows/", "");
+                    var tag = item.Path.Replace("/mnt/user/videos/movies/", "").Replace("/mnt/user/videos/shows/", "");
 
                     item.Tags = new string[] { tag.Split('/')[0] };
                 }

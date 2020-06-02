@@ -13,9 +13,7 @@ web_build_dir="$( mktemp -d )"
 web_target="${SOURCE_DIR}/MediaBrowser.WebDashboard/jellyfin-web"
 git clone https://github.com/jellyfin/jellyfin-web.git ${web_build_dir}/
 pushd ${web_build_dir}
-if [[ -n ${web_branch} ]]; then
-    git checkout origin/${web_branch}
-fi
+git checkout "${web_branch}"
 yarn install
 mkdir -p ${web_target}
 mv dist/* ${web_target}/

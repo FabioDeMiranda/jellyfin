@@ -1016,48 +1016,12 @@ namespace Emby.Server.Implementations
             AuthenticatedAttribute.AuthService = AuthService;
         }
 
-        private async void PluginInstalled(object sender, GenericEventArgs<PackageVersionInfo> args)
-        {
-            string dir = Path.Combine(ApplicationPaths.PluginsPath, args.Argument.name);
-            var types = Directory.EnumerateFiles(dir, "*.dll", SearchOption.AllDirectories)
-                        .Select(Assembly.LoadFrom)
-                        .SelectMany(x => x.ExportedTypes)
-                        .Where(x => x.IsClass && !x.IsAbstract && !x.IsInterface && !x.IsGenericType)
-                        .ToArray();
-
-            int oldLen = _allConcreteTypes.Length;
-            Array.Resize(ref _allConcreteTypes, oldLen + types.Length);
-            types.CopyTo(_allConcreteTypes, oldLen);
-
-            var plugins = types.Where(x => x.IsAssignableFrom(typeof(IPlugin)))
-                    .Select(CreateInstanceSafe)
-                    .Where(x => x != null)
-                    .Cast<IPlugin>()
-                    .Select(LoadPlugin)
-                    .Where(x => x != null)
-                    .ToArray();
-
-            oldLen = _plugins.Length;
-            Array.Resize(ref _plugins, oldLen + plugins.Length);
-            plugins.CopyTo(_plugins, oldLen);
-
-            var entries = types.Where(x => x.IsAssignableFrom(typeof(IServerEntryPoint)))
-                .Select(CreateInstanceSafe)
-                .Where(x => x != null)
-                .Cast<IServerEntryPoint>()
-                .ToList();
-
-            await Task.WhenAll(StartEntryPoints(entries, true)).ConfigureAwait(false);
-            await Task.WhenAll(StartEntryPoints(entries, false)).ConfigureAwait(false);
-        }
-
         /// <summary>
         /// Finds the parts.
         /// </summary>
         public void FindParts()
         {
             InstallationManager = ServiceProvider.GetService<IInstallationManager>();
-            InstallationManager.PluginInstalled += PluginInstalled;
 
             if (!ServerConfigurationManager.Configuration.IsPortAuthorized)
             {
@@ -1165,7 +1129,7 @@ namespace Emby.Server.Implementations
                 {
                     exportedTypes = ass.GetExportedTypes();
                 }
-                catch (TypeLoadException ex)
+                catch (FileNotFoundException ex)
                 {
                     Logger.LogError(ex, "Error getting exported types from {Assembly}", ass.FullName);
                     continue;
@@ -1458,7 +1422,7 @@ namespace Emby.Server.Implementations
 
         public bool SupportsHttps => Certificate != null || ServerConfigurationManager.Configuration.IsBehindProxy;
 
-        public async Task<string> GetLocalApiUrl(CancellationToken cancellationToken)
+        public async Task<string> GetLocalApiUrl(CancellationToken cancellationToken, bool forceHttp = false)
         {
             try
             {
@@ -1467,7 +1431,7 @@ namespace Emby.Server.Implementations
 
                 foreach (var address in addresses)
                 {
-                    return GetLocalApiUrl(address);
+                    return GetLocalApiUrl(address, forceHttp);
                 }
 
                 return null;
@@ -1497,7 +1461,7 @@ namespace Emby.Server.Implementations
         }
 
         /// <inheritdoc />
-        public string GetLocalApiUrl(IPAddress ipAddress)
+        public string GetLocalApiUrl(IPAddress ipAddress, bool forceHttp = false)
         {
             if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
             {
@@ -1507,28 +1471,21 @@ namespace Emby.Server.Implementations
                 str.CopyTo(span.Slice(1));
                 span[^1] = ']';
 
-                return GetLocalApiUrl(span);
+                return GetLocalApiUrl(span, forceHttp);
             }
 
-            return GetLocalApiUrl(ipAddress.ToString());
+            return GetLocalApiUrl(ipAddress.ToString(), forceHttp);
         }
 
         /// <inheritdoc />
-        public string GetLocalApiUrl(ReadOnlySpan<char> host)
+        public string GetLocalApiUrl(ReadOnlySpan<char> host, bool forceHttp = false)
         {
             var url = new StringBuilder(64);
-            if (EnableHttps)
-            {
-                url.Append("https://");
-            }
-            else
-            {
-                url.Append("http://");
-            }
-
-            url.Append(host)
+            bool useHttps = EnableHttps && !forceHttp;
+            url.Append(useHttps ? "https://" : "http://")
+                .Append(host)
                 .Append(':')
-                .Append(HttpPort);
+                .Append(useHttps ? HttpsPort : HttpPort);
 
             string baseUrl = ServerConfigurationManager.Configuration.BaseUrl;
             if (baseUrl.Length != 0)
@@ -1801,7 +1758,7 @@ namespace Emby.Server.Implementations
                 }
 
                 _userRepository?.Dispose();
-                _displayPreferencesRepository.Dispose();
+                _displayPreferencesRepository?.Dispose();
             }
 
             _userRepository = null;

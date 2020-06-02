@@ -178,6 +178,7 @@ namespace MediaBrowser.Controller.Entities
 
         [JsonIgnore]
         public int? TotalBitrate { get; set; }
+
         [JsonIgnore]
         public ExtraType? ExtraType { get; set; }
 
@@ -549,7 +550,6 @@ namespace MediaBrowser.Controller.Entities
         [JsonIgnore]
         public DateTime DateModified { get; set; }
 
-        [JsonIgnore]
         public DateTime DateLastSaved { get; set; }
 
         [JsonIgnore]
@@ -2883,7 +2883,7 @@ namespace MediaBrowser.Controller.Entities
 
         public IEnumerable<BaseItem> GetExtras(IReadOnlyCollection<ExtraType> extraTypes)
         {
-            return ExtraIds.Select(LibraryManager.GetItemById).Where(i => i != null && extraTypes.Contains(i.ExtraType.Value));
+            return ExtraIds.Select(LibraryManager.GetItemById).Where(i => i?.ExtraType != null && extraTypes.Contains(i.ExtraType.Value));
         }
 
         public IEnumerable<BaseItem> GetTrailers()

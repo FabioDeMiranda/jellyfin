@@ -1,0 +1,38 @@
+FROM jellyfin/ffmpeg:latest as ffmpeg
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
+
+COPY --from=ffmpeg /opt/ffmpeg /opt/ffmpeg
+
+RUN chmod -R 777 /mnt
+RUN apt-get update
+RUN apt-get install --no-install-recommends --no-install-suggests -y wget gnupg libfontconfig1 libgomp1 libva-drm2 mesa-va-drivers openssl
+
+RUN wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg
+RUN mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/
+RUN wget -q https://packages.microsoft.com/config/debian/10/prod.list
+RUN mv prod.list /etc/apt/sources.list.d/microsoft-prod.list
+RUN chown root:root /etc/apt/trusted.gpg.d/microsoft.asc.gpg
+RUN chown root:root /etc/apt/sources.list.d/microsoft-prod.list
+RUN apt-get update
+RUN apt-get install -y apt-transport-https
+RUN apt-get update
+RUN apt-get install -y aspnetcore-runtime-2.2
+
+RUN apt-get clean autoclean
+RUN apt-get autoremove
+RUN rm -rf /var/lib/apt/lists/* /var/cache/* /var/tmp/*
+RUN ln -s /opt/ffmpeg/bin/ffmpeg /usr/local/bin
+RUN ln -s /opt/ffmpeg/bin/ffprobe /usr/local/bin
+
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+
+EXPOSE 8096
+
+WORKDIR /jellyfin/bin
+COPY publish/ .
+
+ENTRYPOINT dotnet /jellyfin/bin/jellyfin.dll \
+    --webdir /jellyfin/web \
+    --datadir /config \
+    --cachedir /cache \
+    --ffmpeg /usr/local/bin/ffmpeg

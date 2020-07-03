@@ -3,7 +3,6 @@ FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 
 COPY --from=ffmpeg /opt/ffmpeg /opt/ffmpeg
 
-RUN chmod -R 777 /mnt
 RUN apt-get update
 RUN apt-get install --no-install-recommends --no-install-suggests -y wget gnupg libfontconfig1 libgomp1 libva-drm2 mesa-va-drivers openssl
 
@@ -26,13 +25,4 @@ RUN ln -s /opt/ffmpeg/bin/ffprobe /usr/local/bin
 
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 
-EXPOSE 8096
-
-WORKDIR /jellyfin/bin
-COPY publish/ .
-
-ENTRYPOINT dotnet /jellyfin/bin/jellyfin.dll \
-    --webdir /jellyfin/web \
-    --datadir /config \
-    --cachedir /cache \
-    --ffmpeg /usr/local/bin/ffmpeg
+ENTRYPOINT dotnet

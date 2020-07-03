@@ -1,0 +1,15 @@
+FROM registry.canhamero.com/jellyfin-base:latest
+
+EXPOSE 8096
+
+WORKDIR /jellyfin/web
+COPY dist/ .
+
+WORKDIR /jellyfin/bin
+COPY publish/ .
+
+ENTRYPOINT dotnet /jellyfin/bin/jellyfin.dll \
+    --webdir /jellyfin/web \
+    --datadir /config \
+    --cachedir /cache \
+    --ffmpeg /usr/local/bin/ffmpeg

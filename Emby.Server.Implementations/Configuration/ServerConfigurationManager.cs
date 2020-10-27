@@ -72,14 +72,9 @@ namespace Emby.Server.Implementations.Configuration
         /// <exception cref="IOException">If the directory does not exist, and it also could not be created.</exception>
         private void UpdateMetadataPath()
         {
-            if (string.IsNullOrWhiteSpace(Configuration.MetadataPath))
-            {
-                ((ServerApplicationPaths)ApplicationPaths).InternalMetadataPath = Path.Combine(ApplicationPaths.ProgramDataPath, "metadata");
-            }
-            else
-            {
-                ((ServerApplicationPaths)ApplicationPaths).InternalMetadataPath = Configuration.MetadataPath;
-            }
+            ((ServerApplicationPaths)ApplicationPaths).InternalMetadataPath = string.IsNullOrWhiteSpace(Configuration.MetadataPath)
+                ? ApplicationPaths.DefaultInternalMetadataPath
+                : Configuration.MetadataPath;
             Directory.CreateDirectory(ApplicationPaths.InternalMetadataPath);
         }
 
@@ -87,7 +82,7 @@ namespace Emby.Server.Implementations.Configuration
         /// Replaces the configuration.
         /// </summary>
         /// <param name="newConfiguration">The new configuration.</param>
-        /// <exception cref="DirectoryNotFoundException"></exception>
+        /// <exception cref="DirectoryNotFoundException">If the configuration path doesn't exist.</exception>
         public override void ReplaceConfiguration(BaseApplicationConfiguration newConfiguration)
         {
             var newConfig = (ServerConfiguration)newConfiguration;
@@ -95,7 +90,7 @@ namespace Emby.Server.Implementations.Configuration
             ValidateMetadataPath(newConfig);
             ValidateSslCertificate(newConfig);
 
-            ConfigurationUpdating?.Invoke(this, new GenericEventArgs<ServerConfiguration> { Argument = newConfig });
+            ConfigurationUpdating?.Invoke(this, new GenericEventArgs<ServerConfiguration>(newConfig));
 
             base.ReplaceConfiguration(newConfiguration);
         }
@@ -114,7 +109,6 @@ namespace Emby.Server.Implementations.Configuration
             if (!string.IsNullOrWhiteSpace(newPath)
                 && !string.Equals(Configuration.CertificatePath, newPath, StringComparison.Ordinal))
             {
-                // Validate
                 if (!File.Exists(newPath))
                 {
                     throw new FileNotFoundException(
@@ -136,9 +130,8 @@ namespace Emby.Server.Implementations.Configuration
             var newPath = newConfig.MetadataPath;
 
             if (!string.IsNullOrWhiteSpace(newPath)
-                && !string.Equals(Configuration.MetadataPath, newPath,  StringComparison.Ordinal))
+                && !string.Equals(Configuration.MetadataPath, newPath, StringComparison.Ordinal))
             {
-                // Validate
                 if (!Directory.Exists(newPath))
                 {
                     throw new DirectoryNotFoundException(
@@ -150,67 +143,6 @@ namespace Emby.Server.Implementations.Configuration
 
                 EnsureWriteAccess(newPath);
             }
-        }
-
-        /// <summary>
-        /// Sets all configuration values to their optimal values.
-        /// </summary>
-        /// <returns>If the configuration changed.</returns>
-        public bool SetOptimalValues()
-        {
-            var config = Configuration;
-
-            var changed = false;
-
-            if (!config.EnableCaseSensitiveItemIds)
-            {
-                config.EnableCaseSensitiveItemIds = true;
-                changed = true;
-            }
-
-            if (!config.SkipDeserializationForBasicTypes)
-            {
-                config.SkipDeserializationForBasicTypes = true;
-                changed = true;
-            }
-
-            if (!config.EnableSimpleArtistDetection)
-            {
-                config.EnableSimpleArtistDetection = true;
-                changed = true;
-            }
-
-            if (!config.EnableNormalizedItemByNameIds)
-            {
-                config.EnableNormalizedItemByNameIds = true;
-                changed = true;
-            }
-
-            if (!config.DisableLiveTvChannelUserDataName)
-            {
-                config.DisableLiveTvChannelUserDataName = true;
-                changed = true;
-            }
-
-            if (!config.EnableNewOmdbSupport)
-            {
-                config.EnableNewOmdbSupport = true;
-                changed = true;
-            }
-
-            if (!config.CameraUploadUpgraded)
-            {
-                config.CameraUploadUpgraded = true;
-                changed = true;
-            }
-
-            if (!config.CollectionsUpgraded)
-            {
-                config.CollectionsUpgraded = true;
-                changed = true;
-            }
-
-            return changed;
         }
     }
 }

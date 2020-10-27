@@ -1,5 +1,4 @@
 #pragma warning disable CS1591
-#pragma warning disable SA1600
 
 using System.Linq;
 using MediaBrowser.Model.Dlna;
@@ -165,7 +164,7 @@ namespace Emby.Dlna.Profiles
 
         public void AddXmlRootAttribute(string name, string value)
         {
-            var atts = XmlRootAttributes ?? new XmlAttribute[] { };
+            var atts = XmlRootAttributes ?? System.Array.Empty<XmlAttribute>();
             var list = atts.ToList();
 
             list.Add(new XmlAttribute

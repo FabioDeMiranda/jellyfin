@@ -1686,27 +1686,6 @@ namespace MediaBrowser.Controller.MediaEncoding
                 {
                     videoSizeParam += ",hwupload=extra_hw_frames=64";
                 }
-
-                // For VAAPI and CUVID decoder
-                // these encoders cannot automatically adjust the size of graphical subtitles to fit the output video,
-                // thus needs to be manually adjusted.
-                if ((IsVaapiSupported(state) && string.Equals(options.HardwareAccelerationType, "vaapi", StringComparison.OrdinalIgnoreCase))
-                    || (videoDecoder ?? string.Empty).IndexOf("cuvid", StringComparison.OrdinalIgnoreCase) != -1)
-                {
-                    var videoStream = state.VideoStream;
-                    var inputWidth = videoStream?.Width;
-                    var inputHeight = videoStream?.Height;
-                    var (width, height) = GetFixedOutputSize(inputWidth, inputHeight, request.Width, request.Height, request.MaxWidth, request.MaxHeight);
-
-                    if (width.HasValue && height.HasValue)
-                    {
-                        videoSizeParam = string.Format(
-                        CultureInfo.InvariantCulture,
-                        "scale={0}:{1}:force_original_aspect_ratio=decrease",
-                        width.Value,
-                        height.Value);
-                    }
-                }
             }
 
             var mapPrefix = state.SubtitleStream.IsExternal ?

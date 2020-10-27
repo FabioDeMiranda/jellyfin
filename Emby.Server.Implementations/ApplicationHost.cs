@@ -1182,7 +1182,7 @@ namespace Emby.Server.Implementations
             return address.Slice(0, index);
         }
 
-        /// <inheritdoc />
+        /*/// <inheritdoc />
         public string GetLocalApiUrl(IPAddress ipAddress, bool forceHttp = false)
         {
             if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
@@ -1197,12 +1197,17 @@ namespace Emby.Server.Implementations
             }
 
             return GetLocalApiUrl(ipAddress.ToString(), forceHttp);
-        }
+        }*/
 
         /// <inheritdoc/>
         public string GetLoopbackHttpApiUrl()
         {
             return GetLocalApiUrl("127.0.0.1", Uri.UriSchemeHttp, HttpPort);
+        }
+
+        public string GetLocalApiUrl(IPAddress address)
+        {
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc/>

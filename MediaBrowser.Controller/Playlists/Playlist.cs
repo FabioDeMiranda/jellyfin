@@ -1,3 +1,5 @@
+#pragma warning disable CS1591
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -6,6 +8,7 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Jellyfin.Data.Entities;
+using Jellyfin.Data.Enums;
 using MediaBrowser.Controller.Dto;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Audio;
@@ -157,7 +160,7 @@ namespace MediaBrowser.Controller.Playlists
                 return LibraryManager.GetItemList(new InternalItemsQuery(user)
                 {
                     Recursive = true,
-                    IncludeItemTypes = new[] { typeof(Audio).Name },
+                    IncludeItemTypes = new[] { nameof(Audio) },
                     GenreIds = new[] { musicGenre.Id },
                     OrderBy = new[] { ItemSortBy.AlbumArtist, ItemSortBy.Album, ItemSortBy.SortName }.Select(i => new ValueTuple<string, SortOrder>(i, SortOrder.Ascending)).ToArray(),
                     DtoOptions = options
@@ -169,7 +172,7 @@ namespace MediaBrowser.Controller.Playlists
                 return LibraryManager.GetItemList(new InternalItemsQuery(user)
                 {
                     Recursive = true,
-                    IncludeItemTypes = new[] { typeof(Audio).Name },
+                    IncludeItemTypes = new[] { nameof(Audio) },
                     ArtistIds = new[] { musicArtist.Id },
                     OrderBy = new[] { ItemSortBy.AlbumArtist, ItemSortBy.Album, ItemSortBy.SortName }.Select(i => new ValueTuple<string, SortOrder>(i, SortOrder.Ascending)).ToArray(),
                     DtoOptions = options

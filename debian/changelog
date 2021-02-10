@@ -1,26 +1,20 @@
-jellyfin-server (10.6.4-1) unstable; urgency=medium
+jellyfin-server (10.7.0~rc3) unstable; urgency=medium
 
-  * New upstream version 10.6.4; release changelog at https://github.com/jellyfin/jellyfin/releases/tag/v10.6.4
+  * New upstream version 10.7.0-rc3; release changelog at https://github.com/jellyfin/jellyfin/releases/tag/v10.7.0-rc3
 
- -- Jellyfin Packaging Team <packaging@jellyfin.org>  Sun, 30 Aug 2020 16:44:45 -0400
+ -- Jellyfin Packaging Team <packaging@jellyfin.org>  Sat, 23 Jan 2021 15:49:02 -0500
 
-jellyfin-server (10.6.3-1) unstable; urgency=medium
+jellyfin-server (10.7.0~rc2) unstable; urgency=medium
 
-  * New upstream version 10.6.3; release changelog at https://github.com/jellyfin/jellyfin/releases/tag/v10.6.3
+  * New upstream version 10.7.0-rc2; release changelog at https://github.com/jellyfin/jellyfin/releases/tag/v10.7.0-rc2
 
- -- Jellyfin Packaging Team <packaging@jellyfin.org>  Sun, 16 Aug 2020 20:19:52 -0400
+ -- Jellyfin Packaging Team <packaging@jellyfin.org>  Thu, 31 Dec 2020 19:21:59 -0500
 
-jellyfin-server (10.6.2-1) unstable; urgency=medium
+jellyfin-server (10.7.0~rc1) unstable; urgency=medium
 
-  * New upstream version 10.6.2; release changelog at https://github.com/jellyfin/jellyfin/releases/tag/v10.6.2
+  * New upstream version 10.7.0-rc1; release changelog at https://github.com/jellyfin/jellyfin/releases/tag/v10.7.0-rc1
 
- -- Jellyfin Packaging Team <packaging@jellyfin.org>  Sun, 02 Aug 2020 20:53:02 -0400
-
-jellyfin-server (10.6.1-1) unstable; urgency=medium
-
-  * New upstream version 10.6.1; release changelog at https://github.com/jellyfin/jellyfin/releases/tag/v10.6.1
-
- -- Jellyfin Packaging Team <packaging@jellyfin.org>  Mon, 27 Jul 2020 18:59:03 -0400
+ -- Jellyfin Packaging Team <packaging@jellyfin.org>  Fri, 04 Dec 2020 21:01:58 -0500
 
 jellyfin-server (10.6.0-2) unstable; urgency=medium
 

@@ -398,30 +398,6 @@ namespace Emby.Server.Implementations.IO
             }
         }
 
-        public virtual void SetReadOnly(string path, bool isReadOnly)
-        {
-            if (OperatingSystem.Id != OperatingSystemId.Windows)
-            {
-                return;
-            }
-
-            var info = GetExtendedFileSystemInfo(path);
-
-            if (info.Exists && info.IsReadOnly != isReadOnly)
-            {
-                if (isReadOnly)
-                {
-                    File.SetAttributes(path, File.GetAttributes(path) | FileAttributes.ReadOnly);
-                }
-                else
-                {
-                    var attributes = File.GetAttributes(path);
-                    attributes = RemoveAttribute(attributes, FileAttributes.ReadOnly);
-                    File.SetAttributes(path, attributes);
-                }
-            }
-        }
-
         public virtual void SetAttributes(string path, bool isHidden, bool isReadOnly)
         {
             if (OperatingSystem.Id != OperatingSystemId.Windows)
@@ -606,9 +582,7 @@ namespace Emby.Server.Implementations.IO
 
         public virtual IEnumerable<FileSystemMetadata> GetDirectories(string path, bool recursive = false)
         {
-            var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-
-            return ToMetadata(new DirectoryInfo(path).EnumerateDirectories("*", searchOption));
+            return ToMetadata(new DirectoryInfo(path).EnumerateDirectories("*", GetEnumerationOptions(recursive)));
         }
 
         public virtual IEnumerable<FileSystemMetadata> GetFiles(string path, bool recursive = false)
@@ -618,16 +592,16 @@ namespace Emby.Server.Implementations.IO
 
         public virtual IEnumerable<FileSystemMetadata> GetFiles(string path, IReadOnlyList<string> extensions, bool enableCaseSensitiveExtensions, bool recursive = false)
         {
-            var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+            var enumerationOptions = GetEnumerationOptions(recursive);
 
             // On linux and osx the search pattern is case sensitive
             // If we're OK with case-sensitivity, and we're only filtering for one extension, then use the native method
             if ((enableCaseSensitiveExtensions || _isEnvironmentCaseInsensitive) && extensions != null && extensions.Count == 1)
             {
-                return ToMetadata(new DirectoryInfo(path).EnumerateFiles("*" + extensions[0], searchOption));
+                return ToMetadata(new DirectoryInfo(path).EnumerateFiles("*" + extensions[0], enumerationOptions));
             }
 
-            var files = new DirectoryInfo(path).EnumerateFiles("*", searchOption);
+            var files = new DirectoryInfo(path).EnumerateFiles("*", enumerationOptions);
 
             if (extensions != null && extensions.Count > 0)
             {
@@ -649,10 +623,10 @@ namespace Emby.Server.Implementations.IO
         public virtual IEnumerable<FileSystemMetadata> GetFileSystemEntries(string path, bool recursive = false)
         {
             var directoryInfo = new DirectoryInfo(path);
-            var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+            var enumerationOptions = GetEnumerationOptions(recursive);
 
-            return ToMetadata(directoryInfo.EnumerateDirectories("*", searchOption))
-                .Concat(ToMetadata(directoryInfo.EnumerateFiles("*", searchOption)));
+            return ToMetadata(directoryInfo.EnumerateDirectories("*", enumerationOptions))
+                .Concat(ToMetadata(directoryInfo.EnumerateFiles("*", enumerationOptions)));
         }
 
         private IEnumerable<FileSystemMetadata> ToMetadata(IEnumerable<FileSystemInfo> infos)
@@ -662,8 +636,7 @@ namespace Emby.Server.Implementations.IO
 
         public virtual IEnumerable<string> GetDirectoryPaths(string path, bool recursive = false)
         {
-            var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-            return Directory.EnumerateDirectories(path, "*", searchOption);
+            return Directory.EnumerateDirectories(path, "*", GetEnumerationOptions(recursive));
         }
 
         public virtual IEnumerable<string> GetFilePaths(string path, bool recursive = false)
@@ -673,16 +646,16 @@ namespace Emby.Server.Implementations.IO
 
         public virtual IEnumerable<string> GetFilePaths(string path, string[] extensions, bool enableCaseSensitiveExtensions, bool recursive = false)
         {
-            var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+            var enumerationOptions = GetEnumerationOptions(recursive);
 
             // On linux and osx the search pattern is case sensitive
             // If we're OK with case-sensitivity, and we're only filtering for one extension, then use the native method
             if ((enableCaseSensitiveExtensions || _isEnvironmentCaseInsensitive) && extensions != null && extensions.Length == 1)
             {
-                return Directory.EnumerateFiles(path, "*" + extensions[0], searchOption);
+                return Directory.EnumerateFiles(path, "*" + extensions[0], enumerationOptions);
             }
 
-            var files = Directory.EnumerateFiles(path, "*", searchOption);
+            var files = Directory.EnumerateFiles(path, "*", enumerationOptions);
 
             if (extensions != null && extensions.Length > 0)
             {
@@ -703,16 +676,16 @@ namespace Emby.Server.Implementations.IO
 
         public virtual IEnumerable<string> GetFileSystemEntryPaths(string path, bool recursive = false)
         {
-            var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-            return Directory.EnumerateFileSystemEntries(path, "*", searchOption);
+            return Directory.EnumerateFileSystemEntries(path, "*", GetEnumerationOptions(recursive));
         }
 
-        public virtual void SetExecutable(string path)
+        private EnumerationOptions GetEnumerationOptions(bool recursive)
         {
-            if (OperatingSystem.Id == OperatingSystemId.Darwin)
+            return new EnumerationOptions
             {
-                RunProcess("chmod", "+x \"" + path + "\"", Path.GetDirectoryName(path));
-            }
+                RecurseSubdirectories = recursive,
+                IgnoreInaccessible = true
+            };
         }
 
         private static void RunProcess(string path, string args, string workingDirectory)

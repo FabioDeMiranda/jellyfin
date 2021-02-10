@@ -36,7 +36,7 @@ namespace Emby.Drawing
         private readonly IImageEncoder _imageEncoder;
         private readonly IMediaEncoder _mediaEncoder;
 
-        private bool _disposed = false;
+        private bool _disposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ImageProcessor"/> class.
@@ -448,29 +448,29 @@ namespace Emby.Drawing
         /// or
         /// filename.
         /// </exception>
-        public string GetCachePath(string path, string filename)
+        public string GetCachePath(ReadOnlySpan<char> path, ReadOnlySpan<char> filename)
         {
-            if (string.IsNullOrEmpty(path))
+            if (path.IsEmpty)
             {
-                throw new ArgumentNullException(nameof(path));
+                throw new ArgumentException("Path can't be empty.", nameof(path));
             }
 
-            if (string.IsNullOrEmpty(filename))
+            if (filename.IsEmpty)
             {
-                throw new ArgumentNullException(nameof(filename));
+                throw new ArgumentException("Filename can't be empty.", nameof(filename));
             }
 
-            var prefix = filename.Substring(0, 1);
+            var prefix = filename.Slice(0, 1);
 
-            return Path.Combine(path, prefix, filename);
+            return Path.Join(path, prefix, filename);
         }
 
         /// <inheritdoc />
-        public void CreateImageCollage(ImageCollageOptions options)
+        public void CreateImageCollage(ImageCollageOptions options, string? libraryName)
         {
             _logger.LogInformation("Creating image collage and saving to {Path}", options.OutputPath);
 
-            _imageEncoder.CreateImageCollage(options);
+            _imageEncoder.CreateImageCollage(options, libraryName);
 
             _logger.LogInformation("Completed creation of image collage and saved to {Path}", options.OutputPath);
         }
